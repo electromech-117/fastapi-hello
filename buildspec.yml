@@ -3,6 +3,7 @@ version: 0.2
 env:
   variables:
     REPOSITORY_NAME: "demo"
+    CONTAINER_NAME: "fastapi"
 
 phases:
   pre_build:
@@ -36,7 +37,7 @@ phases:
       - docker push $REPOSITORY_URI:$IMAGE_TAG
   
       - echo Writing image definitions file...
-      - printf '[{"name":"%s","imageUri":"%s"}]' $REPOSITORY_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
     files: imagedefinitions.json
