@@ -3,7 +3,9 @@ version: 0.2
 env:
   variables:
     REPOSITORY_NAME: "demo"
-    CONTAINER_NAME: "fastapi"
+  
+  exported-variables:
+    - CONTAINER_NAME
 
 phases:
   pre_build:
