@@ -1,22 +1,29 @@
 version: 0.2
 
 env:
-  variables:
-    REPOSITORY_NAME: "demo"
-  
   exported-variables:
+    - REPOSITORY_NAME
     - CONTAINER_NAME
 
 phases:
   pre_build:
     commands:
+      
+      # check needed vars
+      - test $REPOSITORY_NAME || echo Environment variable REPOSITORY_NAME not defined; exit 1
+      - test $CONTAINER_NAME || echo Environment variable CONTAINER_NAME not defined; exit 1
+
       - echo Logging in to Amazon ECR...
+      
+      # AWS_ACCOUNT_ID
       - AWS_ACCOUNT_ID=`echo $CODEBUILD_BUILD_ARN | cut -d ":" -f 5`
       - echo $AWS_ACCOUNT_ID
       
+      # Check ECR access
       - aws --version
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       
+      # ECR REPO
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME
       
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
@@ -26,7 +33,8 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-  
+      
+      # build image
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   
@@ -34,10 +42,13 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
-  
+
+      # push to ecr
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-  
+      
+      
+      # artifacts
       - echo Writing image definitions file...
       - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
