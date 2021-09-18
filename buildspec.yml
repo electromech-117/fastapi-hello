@@ -10,8 +10,8 @@ phases:
     commands:
       
       # check needed vars
-      - test $REPOSITORY_NAME || echo Environment variable REPOSITORY_NAME not defined; exit 1
-      - test $CONTAINER_NAME || echo Environment variable CONTAINER_NAME not defined; exit 1
+      - test $REPOSITORY_NAME || (echo Environment variable REPOSITORY_NAME not defined; exit 1)
+      - test $CONTAINER_NAME || (echo Environment variable CONTAINER_NAME not defined; exit 1)
 
       - echo Logging in to Amazon ECR...
       
